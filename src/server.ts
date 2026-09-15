@@ -1,0 +1,1 @@
+console.log("MindVault backend initialized");
