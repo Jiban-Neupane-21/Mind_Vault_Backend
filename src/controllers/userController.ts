@@ -32,3 +32,25 @@ export const getProfile = async (
     }
   }
 };
+
+export const getAllUsers = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const result = await query<SafeUser>(
+      'SELECT id, name, email, role, created_at, updated_at FROM users ORDER BY created_at DESC'
+    );
+
+    res.status(200).json({
+      total: result.rows.length,
+      users: result.rows,
+    });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'An unexpected error occurred.' });
+    }
+  }
+};
