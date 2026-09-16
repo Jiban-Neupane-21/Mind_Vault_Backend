@@ -7,6 +7,7 @@ import { swaggerSpec } from "@/config/swagger";
 import authRoutes from "@/routes/authRoutes";
 import userRoutes from "@/routes/userRoutes";
 import thoughtRoutes from "@/routes/thoughtRoutes";
+import siteRoutes from "@/routes/siteRoutes";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/thoughts", thoughtRoutes);
+app.use("/api/sites", siteRoutes);
 
 // Test route (Health check)
 app.get("/api/health", (req: Request, res: Response) => {
