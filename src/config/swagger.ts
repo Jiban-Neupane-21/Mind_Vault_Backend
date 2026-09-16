@@ -14,6 +14,30 @@ const options: swaggerJSDoc.Options = {
         description: "Development server",
       },
     ],
+
+    // Define tag order here:
+    tags: [
+      {
+        name: "Health",
+        description: "API and database health monitoring",
+      },
+      {
+        name: "Auth",
+        description: "Authentication and session endpoints",
+      },
+      {
+        name: "Users",
+        description: "User management endpoints",
+      },
+      {
+        name: "Thoughts",
+        description: "Thought board and secret edit token endpoints",
+      },
+      {
+        name: "Useful Sites",
+        description: "Curated directory and category endpoints",
+      },
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {

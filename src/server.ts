@@ -8,6 +8,7 @@ import authRoutes from "@/routes/authRoutes";
 import userRoutes from "@/routes/userRoutes";
 import thoughtRoutes from "@/routes/thoughtRoutes";
 import siteRoutes from "@/routes/siteRoutes";
+import healthRoutes from "@/routes/healthRoutes";
 
 dotenv.config();
 
@@ -18,21 +19,18 @@ app.use(express.json());
 app.use(cors());
 
 // Swagger Docs Route
-app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, { swaggerOptions: { tagShorter: false } }),
+);
 
 // Application Routes
+app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/thoughts", thoughtRoutes);
 app.use("/api/sites", siteRoutes);
-
-// Test route (Health check)
-app.get("/api/health", (req: Request, res: Response) => {
-  res.status(200).json({
-    status: "success",
-    message: "Mind Vault API is live and healthy!",
-  });
-});
 
 async function startServer() {
   try {
