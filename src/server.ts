@@ -6,6 +6,7 @@ import { pool } from "@/config/db";
 import { swaggerSpec } from "@/config/swagger";
 import authRoutes from "@/routes/authRoutes";
 import userRoutes from "@/routes/userRoutes";
+import thoughtRoutes from "@/routes/thoughtRoutes";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Application Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/thoughts", thoughtRoutes);
 
 // Test route (Health check)
 app.get("/api/health", (req: Request, res: Response) => {
