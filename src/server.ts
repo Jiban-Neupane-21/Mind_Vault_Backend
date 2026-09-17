@@ -12,6 +12,8 @@ import siteRoutes from "@/routes/siteRoutes";
 import quoteRoutes from "@/routes/quoteRoutes";
 import healthRoutes from "@/routes/healthRoutes";
 import { generalLimiter } from "@/middleware/rateLimitMiddleware";
+import { errorHandler } from "@/middleware/errorMiddleware";
+import { AppError } from "@/utils/AppError";
 
 dotenv.config();
 
@@ -42,6 +44,20 @@ app.use("/api/users", userRoutes);
 app.use("/api/thoughts", thoughtRoutes);
 app.use("/api/sites", siteRoutes);
 app.use("/api/quotes", quoteRoutes);
+
+
+// Handle unhandled routes (404) - pathless middleware catches all unmatched requests
+app.use((req, _res, next) => {
+  next(
+    new AppError(
+      `Cannot find ${req.originalUrl} on this server`,
+      404,
+      "NOT_FOUND",
+    ),
+  );
+});
+
+app.use(errorHandler);
 
 async function startServer() {
   try {
