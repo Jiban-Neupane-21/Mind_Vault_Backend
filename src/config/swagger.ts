@@ -37,6 +37,10 @@ const options: swaggerJSDoc.Options = {
         name: "Useful Sites",
         description: "Curated directory and category endpoints",
       },
+      {
+        name: "Quotes",
+        description: "Anonymous and curated quotes management",
+      },
     ],
     components: {
       securitySchemes: {

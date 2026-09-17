@@ -8,6 +8,7 @@ import authRoutes from "@/routes/authRoutes";
 import userRoutes from "@/routes/userRoutes";
 import thoughtRoutes from "@/routes/thoughtRoutes";
 import siteRoutes from "@/routes/siteRoutes";
+import quoteRoutes from "@/routes/quoteRoutes"
 import healthRoutes from "@/routes/healthRoutes";
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/thoughts", thoughtRoutes);
 app.use("/api/sites", siteRoutes);
+app.use("/api/quotes", quoteRoutes);
 
 async function startServer() {
   try {
