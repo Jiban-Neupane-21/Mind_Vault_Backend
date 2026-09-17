@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import helmet from "helmet";
 import cors from "cors";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
@@ -8,8 +9,9 @@ import authRoutes from "@/routes/authRoutes";
 import userRoutes from "@/routes/userRoutes";
 import thoughtRoutes from "@/routes/thoughtRoutes";
 import siteRoutes from "@/routes/siteRoutes";
-import quoteRoutes from "@/routes/quoteRoutes"
+import quoteRoutes from "@/routes/quoteRoutes";
 import healthRoutes from "@/routes/healthRoutes";
+import { generalLimiter } from "@/middleware/rateLimitMiddleware";
 
 dotenv.config();
 
@@ -18,7 +20,14 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
-
+// Security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Prevents breaking Swagger UI inline styles/scripts
+  }),
+);
+// Apply general limiter globally, or prefix with '/api'
+app.use("/api", generalLimiter);
 // Swagger Docs Route
 app.use(
   "/api/docs",

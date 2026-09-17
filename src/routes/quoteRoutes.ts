@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { validate } from "@/middleware/validateMiddleware";
+import { engagementLimiter } from "@/middleware/rateLimitMiddleware";
 import {
   getRandomQuote,
   getQuotes,
@@ -69,7 +70,7 @@ router.get("/saved", authenticate, getSavedQuotes);
  *       500:
  *         description: Internal server error
  */
-router.get("/random", validate({ query: quoteQuerySchema }), getRandomQuote);
+router.get("/random",engagementLimiter, validate({ query: quoteQuerySchema }), getRandomQuote);
 
 /**
  * @openapi
@@ -293,7 +294,7 @@ router.delete(
  *       500:
  *         description: Internal server error
  */
-router.patch("/:id/like", validate({ params: quoteParamSchema }), likeQuote);
+router.patch("/:id/like",engagementLimiter, validate({ params: quoteParamSchema }), likeQuote);
 
 /**
  * @openapi
@@ -319,6 +320,7 @@ router.patch("/:id/like", validate({ params: quoteParamSchema }), likeQuote);
  */
 router.post(
   "/:id/share",
+  engagementLimiter,
   validate({ params: quoteParamSchema }),
   trackQuoteShare,
 );
