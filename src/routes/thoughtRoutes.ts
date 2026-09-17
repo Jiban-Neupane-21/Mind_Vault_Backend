@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validate } from "@/middleware/validateMiddleware";
 import {
   createThought,
   getPublicThoughts,
@@ -9,6 +10,11 @@ import {
 } from "@/controllers/thoughtController";
 import { authenticate } from "@/middleware/authMiddleware";
 import { optionalAuthenticate } from "@/middleware/optionalMiddleware";
+import {
+  createThoughtSchema,
+  updateThoughtSchema,
+  thoughtParamSchema,
+} from "@/schemas/thoughtSchemas";
 
 const router = Router();
 
@@ -83,7 +89,12 @@ router.get("/my", authenticate, getMyThoughts);
  *       500:
  *         description: Internal server error
  */
-router.post("/", optionalAuthenticate, createThought);
+router.post(
+  "/",
+  optionalAuthenticate,
+  validate({ body: createThoughtSchema }),
+  createThought,
+);
 
 /**
  * @openapi
@@ -111,7 +122,12 @@ router.post("/", optionalAuthenticate, createThought);
  *       500:
  *         description: Internal server error
  */
-router.get("/:id", optionalAuthenticate, getThoughtById);
+router.get(
+  "/:id",
+  optionalAuthenticate,
+  validate({ params: thoughtParamSchema }),
+  getThoughtById,
+);
 
 /**
  * @openapi
@@ -158,7 +174,12 @@ router.get("/:id", optionalAuthenticate, getThoughtById);
  *       500:
  *         description: Internal server error
  */
-router.put("/:id", optionalAuthenticate, updateThought);
+router.put(
+  "/:id",
+  optionalAuthenticate,
+  validate({ params: thoughtParamSchema, body: updateThoughtSchema }),
+  updateThought,
+);
 
 /**
  * @openapi
@@ -193,6 +214,11 @@ router.put("/:id", optionalAuthenticate, updateThought);
  *       500:
  *         description: Internal server error
  */
-router.delete("/:id", optionalAuthenticate, deleteThought);
+router.delete(
+  "/:id",
+  optionalAuthenticate,
+  validate({ params: thoughtParamSchema }),
+  deleteThought,
+);
 
 export default router;

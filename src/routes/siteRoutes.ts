@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validate } from "@/middleware/validateMiddleware";
 import {
   getCategories,
   createCategory,
@@ -10,6 +11,13 @@ import {
 } from "@/controllers/siteController";
 import { authenticate } from "@/middleware/authMiddleware";
 import { requireRole } from "@/middleware/roleMiddleware"; // Import role guard
+import {
+  createCategorySchema,
+  createSiteSchema,
+  updateSiteSchema,
+  siteQuerySchema,
+  uuidParamSchema,
+} from "@/schemas/siteSchemas";
 
 const router = Router();
 
@@ -66,7 +74,13 @@ router.get("/categories", getCategories);
  *       500:
  *         description: Internal server error
  */
-router.post("/categories", authenticate, requireRole("Admin"), createCategory);
+router.post(
+  "/categories",
+  authenticate,
+  requireRole("Admin"),
+  validate({ body: createCategorySchema }),
+  createCategory,
+);
 // -------------------------------------------------------------
 // SITE ROUTES
 // -------------------------------------------------------------
@@ -108,7 +122,7 @@ router.post("/categories", authenticate, requireRole("Admin"), createCategory);
  *       500:
  *         description: Internal server error
  */
-router.get("/", getSites);
+router.get("/", validate({ query: siteQuerySchema }), getSites);
 
 /**
  * @openapi
@@ -132,7 +146,7 @@ router.get("/", getSites);
  *       500:
  *         description: Internal server error
  */
-router.get("/:id", getSiteById);
+router.get("/:id", validate({ params: uuidParamSchema }), getSiteById);
 
 /**
  * @openapi
@@ -175,7 +189,12 @@ router.get("/:id", getSiteById);
  *       500:
  *         description: Internal server error
  */
-router.post("/", authenticate, createSite);
+router.post(
+  "/",
+  authenticate,
+  validate({ body: createSiteSchema }),
+  createSite,
+);
 
 /**
  * @openapi
@@ -220,7 +239,12 @@ router.post("/", authenticate, createSite);
  *       500:
  *         description: Internal server error
  */
-router.put("/:id", authenticate, updateSite);
+router.put(
+  "/:id",
+  authenticate,
+  validate({ params: uuidParamSchema, body: updateSiteSchema }),
+  updateSite,
+);
 
 /**
  * @openapi
@@ -250,6 +274,11 @@ router.put("/:id", authenticate, updateSite);
  *       500:
  *         description: Internal server error
  */
-router.delete("/:id", authenticate, deleteSite);
+router.delete(
+  "/:id",
+  authenticate,
+  validate({ params: uuidParamSchema }),
+  deleteSite,
+);
 
 export default router;

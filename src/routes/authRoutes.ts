@@ -1,5 +1,7 @@
-import { Router } from 'express';
-import { register, login } from '@/controllers/authController';
+import { Router } from "express";
+import { validate } from "@/middleware/validateMiddleware";
+import { register, login } from "@/controllers/authController";
+import { loginSchema, registerSchema } from "@/schemas/authSchemas";
 
 const router = Router();
 
@@ -37,7 +39,7 @@ const router = Router();
  *       409:
  *         description: Email already in use
  */
-router.post('/register', register);
+router.post("/register", validate({ body: registerSchema }), register);
 
 /**
  * @openapi
@@ -67,6 +69,6 @@ router.post('/register', register);
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', login);
+router.post("/login", validate({ body: loginSchema }), login);
 
 export default router;

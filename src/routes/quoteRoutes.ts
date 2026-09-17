@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validate } from "@/middleware/validateMiddleware";
 import {
   getRandomQuote,
   getQuotes,
@@ -15,6 +16,14 @@ import {
   trackQuoteShare,
 } from "@/controllers/quoteController";
 import { authenticate } from "@/middleware/authMiddleware";
+import {
+  createQuoteSchema,
+  updateQuoteSchema,
+  createCommentSchema,
+  quoteQuerySchema,
+  quoteParamSchema,
+  commentParamSchema,
+} from "@/schemas/quoteSchemas";
 
 const router = Router();
 
@@ -60,7 +69,7 @@ router.get("/saved", authenticate, getSavedQuotes);
  *       500:
  *         description: Internal server error
  */
-router.get("/random", getRandomQuote);
+router.get("/random", validate({ query: quoteQuerySchema }), getRandomQuote);
 
 /**
  * @openapi
@@ -101,7 +110,7 @@ router.get("/random", getRandomQuote);
  *       500:
  *         description: Internal server error
  */
-router.get("/", getQuotes);
+router.get("/", validate({ query: quoteQuerySchema }), getQuotes);
 
 /**
  * @openapi
@@ -125,7 +134,7 @@ router.get("/", getQuotes);
  *       500:
  *         description: Internal server error
  */
-router.get("/:id", getQuoteById);
+router.get("/:id", validate({ params: quoteParamSchema }), getQuoteById);
 
 /**
  * @openapi
@@ -167,7 +176,12 @@ router.get("/:id", getQuoteById);
  *       500:
  *         description: Internal server error
  */
-router.post("/", authenticate, createQuote);
+router.post(
+  "/",
+  authenticate,
+  validate({ body: createQuoteSchema }),
+  createQuote,
+);
 
 /**
  * @openapi
@@ -211,7 +225,12 @@ router.post("/", authenticate, createQuote);
  *       500:
  *         description: Internal server error
  */
-router.put("/:id", authenticate, updateQuote);
+router.put(
+  "/:id",
+  authenticate,
+  validate({ params: quoteParamSchema, body: updateQuoteSchema }),
+  updateQuote,
+);
 
 /**
  * @openapi
@@ -241,7 +260,12 @@ router.put("/:id", authenticate, updateQuote);
  *       500:
  *         description: Internal server error
  */
-router.delete("/:id", authenticate, deleteQuote);
+router.delete(
+  "/:id",
+  validate({ params: quoteParamSchema }),
+  authenticate,
+  deleteQuote,
+);
 
 // -------------------------------------------------------------
 // ENGAGEMENT (LIKE, SHARE, BOOKMARK)
@@ -269,7 +293,7 @@ router.delete("/:id", authenticate, deleteQuote);
  *       500:
  *         description: Internal server error
  */
-router.patch("/:id/like", likeQuote);
+router.patch("/:id/like", validate({ params: quoteParamSchema }), likeQuote);
 
 /**
  * @openapi
@@ -293,7 +317,11 @@ router.patch("/:id/like", likeQuote);
  *       500:
  *         description: Internal server error
  */
-router.post("/:id/share", trackQuoteShare);
+router.post(
+  "/:id/share",
+  validate({ params: quoteParamSchema }),
+  trackQuoteShare,
+);
 
 /**
  * @openapi
@@ -321,7 +349,12 @@ router.post("/:id/share", trackQuoteShare);
  *       500:
  *         description: Internal server error
  */
-router.post("/:id/save", authenticate, toggleSaveQuote);
+router.post(
+  "/:id/save",
+  authenticate,
+  validate({ params: quoteParamSchema }),
+  toggleSaveQuote,
+);
 
 // -------------------------------------------------------------
 // COMMENTS
@@ -347,7 +380,11 @@ router.post("/:id/save", authenticate, toggleSaveQuote);
  *       500:
  *         description: Internal server error
  */
-router.get("/:id/comments", getQuoteComments);
+router.get(
+  "/:id/comments",
+  validate({ params: quoteParamSchema }),
+  getQuoteComments,
+);
 
 /**
  * @openapi
@@ -389,7 +426,12 @@ router.get("/:id/comments", getQuoteComments);
  *       500:
  *         description: Internal server error
  */
-router.post("/:id/comments", authenticate, addQuoteComment);
+router.post(
+  "/:id/comments",
+  authenticate,
+  validate({ params: quoteParamSchema, body: createCommentSchema }),
+  addQuoteComment,
+);
 
 /**
  * @openapi
@@ -419,6 +461,6 @@ router.post("/:id/comments", authenticate, addQuoteComment);
  *       500:
  *         description: Internal server error
  */
-router.delete("/comments/:commentId", authenticate, deleteQuoteComment);
+router.delete("/comments/:commentId", authenticate,validate({ params: commentParamSchema }), deleteQuoteComment);
 
 export default router;
