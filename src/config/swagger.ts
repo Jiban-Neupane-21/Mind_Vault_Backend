@@ -29,6 +29,11 @@ const options: swaggerJSDoc.Options = {
         name: "Users",
         description: "User management endpoints",
       },
+      
+      {
+        name: "Admin",
+        description: "System management and monitoring endpoints",
+      },
       {
         name: "Thoughts",
         description: "Thought board and secret edit token endpoints",
