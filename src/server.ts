@@ -6,7 +6,11 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   try {
     const client = await pool.connect();
-    console.log("PostgreSQL connected successfully to mindvault!");
+    // Execute a quick ping query to verify database name and time
+    const res = await client.query("SELECT current_database(), NOW()");
+    console.log(
+      `PostgreSQL connected successfully to [${res.rows[0].current_database}] at: ${res.rows[0].now}`,
+    );
     client.release();
 
     app.listen(PORT, () => {
