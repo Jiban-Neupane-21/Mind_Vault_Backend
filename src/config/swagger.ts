@@ -10,7 +10,13 @@ const options: swaggerJSDoc.Options = {
     },
     servers: [
       {
-        url: "http://localhost:5000",
+        url:
+          process.env.RENDER_EXTERNAL_URL ||
+          "https://mind-vault-backend-qbok.onrender.com",
+        description: "Production server",
+      },
+      {
+        url: `http://localhost:${process.env.PORT || 5000}`,
         description: "Development server",
       },
     ],
@@ -29,7 +35,7 @@ const options: swaggerJSDoc.Options = {
         name: "Users",
         description: "User management endpoints",
       },
-      
+
       {
         name: "Admin",
         description: "System management and monitoring endpoints",
