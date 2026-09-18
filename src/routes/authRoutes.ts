@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { validate } from "@/middleware/validateMiddleware";
-import { register, login } from "@/controllers/authController";
+import { register, login, logout } from "@/controllers/authController";
 import { loginSchema, registerSchema } from "@/schemas/authSchemas";
 import { authLimiter } from "@/middleware/rateLimitMiddleware";
 
@@ -40,7 +40,12 @@ const router = Router();
  *       409:
  *         description: Email already in use
  */
-router.post("/register",authLimiter, validate({ body: registerSchema }), register);
+router.post(
+  "/register",
+  authLimiter,
+  validate({ body: registerSchema }),
+  register,
+);
 
 /**
  * @openapi
@@ -70,6 +75,42 @@ router.post("/register",authLimiter, validate({ body: registerSchema }), registe
  *       401:
  *         description: Invalid credentials
  */
-router.post("/login",authLimiter, validate({ body: loginSchema }), login);
+router.post("/login", authLimiter, validate({ body: loginSchema }), login);
+
+/**
+ * @openapi
+ * /api/auth/logout:
+ *   post:
+ *     summary: Log out current user
+ *     description: Invalidates client-side session / clears auth cookies and logs out the user.
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully logged out
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Logged out successfully
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Unauthorized access
+ */ router.post("/logout", logout);
 
 export default router;
