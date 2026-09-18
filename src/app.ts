@@ -77,6 +77,27 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, { swaggerOptions: { tagShorter: false } }),
 );
+
+// Root endpoint
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "Welcome to Mind Vault API",
+    docs: "/api/docs",
+    health: "/api/health",
+  });
+});
+
+// API base endpoint
+app.get("/api", (_req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "Mind Vault API Base Endpoint",
+    version: "1.0.0",
+    docs: "/api/docs",
+  });
+});
+
 app.use(trackVisitor);
 
 app.use("/api", generalLimiter);
