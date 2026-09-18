@@ -1,6 +1,6 @@
 import express from "express";
 import helmet from "helmet";
-import cors, {CorsOptions} from "cors";
+import cors, { CorsOptions } from "cors";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "@/config/swagger";
@@ -10,7 +10,7 @@ import thoughtRoutes from "@/routes/thoughtRoutes";
 import siteRoutes from "@/routes/siteRoutes";
 import quoteRoutes from "@/routes/quoteRoutes";
 import healthRoutes from "@/routes/healthRoutes";
-import adminRoutes from '@/routes/adminRoutes';
+import adminRoutes from "@/routes/adminRoutes";
 import { trackVisitor } from "@/middleware/trackVisitor";
 import { generalLimiter } from "@/middleware/rateLimitMiddleware";
 import { errorHandler } from "@/middleware/errorMiddleware";
@@ -20,70 +20,76 @@ dotenv.config();
 
 const app = express();
 
-// 1. Trust first proxy (Render, Railway, Fly.io, Nginx)
-// Needed for accurate IP resolution in trackVisitor and generalLimiter
 app.set("trust proxy", 1);
 
-// 2. Production CORS configuration
 const allowedOrigins: string[] = [
-  process.env.CLIENT_URL || "", // e.g., https://your-mindvault-frontend.vercel.app
+  "https://mind-vault-backend-qbok.onrender.com",
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://localhost:5000", // <-- Must be added so your local Swagger UI is allowed
+  process.env.CLIENT_URL || "",
 ].filter(Boolean);
 
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    // Allow server-to-server calls, Postman, or requests without origin
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS blocked for origin: ${origin}`));
+    // 1. Allow server-to-server, curl, or mobile requests without Origin header
+    if (!origin) return callback(null, true);
+
+    // 2. Allow matching origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+
+    // 3. For Swagger / testing, allow it rather than throwing an Error:
+    return callback(null, true);
   },
   credentials: true,
   exposedHeaders: ["x-visitor-id"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+  ],
 };
 
 app.use(cors(corsOptions));
 
-// 3. Security Headers
 app.use(
   helmet({
-    contentSecurityPolicy: false, // Preserves Swagger UI styling & scripts
+    contentSecurityPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false, // Turn off COOP if Swagger has issues
     hsts:
       process.env.NODE_ENV === "production"
         ? { maxAge: 31536000, includeSubDomains: true, preload: true }
         : false,
-  })
+  }),
 );
 
 app.use(express.json());
 
-// Attach visitor tracking
-app.use(trackVisitor);
-
-// General limiter on API routes
-app.use("/api", generalLimiter);
-
-// Swagger documentation route
+// Swagger docs
 app.use(
   "/api/docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, { swaggerOptions: { tagShorter: false } }),
 );
+app.use(trackVisitor);
 
-// Application routes
+app.use("/api", generalLimiter);
+
+// Routes
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/thoughts", thoughtRoutes);
 app.use("/api/sites", siteRoutes);
 app.use("/api/quotes", quoteRoutes);
-app.use('/api/admin', adminRoutes);
-// Catch-all 404 handler for unmapped routes
+app.use("/api/admin", adminRoutes);
+
 app.use((req, _res, next) => {
   next(
     new AppError(
@@ -94,7 +100,6 @@ app.use((req, _res, next) => {
   );
 });
 
-// Centralized error handling middleware
 app.use(errorHandler);
 
 export default app;

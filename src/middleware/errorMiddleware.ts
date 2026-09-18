@@ -4,10 +4,19 @@ import { ZodError } from "zod";
 
 export const errorHandler: ErrorRequestHandler = (
   err: any,
-  _req: Request,
+  req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void => {
+  // 1. Ensure CORS headers are present on error responses
+  const origin = req.headers.origin;
+  if (origin) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
+
+  // 2. Log error details to Render logs so you can inspect crashes
+  console.error(`[ERROR] ${req.method} ${req.originalUrl}:`, err);
   let statusCode = err.statusCode || 500;
   let message = err.message || "Internal Server Error";
   let status = err.status || "error";
