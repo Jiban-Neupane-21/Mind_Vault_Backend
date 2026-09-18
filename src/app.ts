@@ -1,6 +1,6 @@
 import express from "express";
 import helmet from "helmet";
-import cors from "cors";
+import cors, {CorsOptions} from "cors";
 import dotenv from "dotenv";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "@/config/swagger";
@@ -20,22 +20,50 @@ dotenv.config();
 
 const app = express();
 
-app.use(express.json());
+// 1. Trust first proxy (Render, Railway, Fly.io, Nginx)
+// Needed for accurate IP resolution in trackVisitor and generalLimiter
+app.set("trust proxy", 1);
+
+// 2. Production CORS configuration
+const allowedOrigins: string[] = [
+  process.env.CLIENT_URL || "", // e.g., https://your-mindvault-frontend.vercel.app
+  "http://localhost:3000",
+  "http://localhost:5173",
+].filter(Boolean);
+
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow server-to-server calls, Postman, or requests without origin
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    }
+  },
+  credentials: true,
+  exposedHeaders: ["x-visitor-id"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
+app.use(cors(corsOptions));
+
+// 3. Security Headers
 app.use(
-  cors({
-    exposedHeaders: ["x-visitor-id"],
-  }),
+  helmet({
+    contentSecurityPolicy: false, // Preserves Swagger UI styling & scripts
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    hsts:
+      process.env.NODE_ENV === "production"
+        ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+        : false,
+  })
 );
+
+app.use(express.json());
 
 // Attach visitor tracking
 app.use(trackVisitor);
-
-// Security headers
-app.use(
-  helmet({
-    contentSecurityPolicy: false, // Avoid breaking Swagger UI styles
-  }),
-);
 
 // General limiter on API routes
 app.use("/api", generalLimiter);
