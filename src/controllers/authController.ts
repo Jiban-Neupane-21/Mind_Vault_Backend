@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { DatabaseError } from "pg";
 import { query } from "@/config/db";
 import { User, SafeUser } from "@/types/user";
 import { hashPassword, comparePassword } from "@/utils/password";
@@ -27,15 +28,6 @@ export const register = async (
   }
 
   try {
-    const existing = await query<User>(
-      "SELECT id FROM users WHERE email = $1",
-      [email.toLowerCase()],
-    );
-
-    if (existing.rows.length > 0) {
-      res.status(409).json({ error: "A user with this email already exists." });
-      return;
-    }
 
     const hashedPassword = await hashPassword(password);
 
@@ -43,7 +35,7 @@ export const register = async (
       `INSERT INTO users (name, email, password, role)
        VALUES ($1, $2, $3, 'User')
        RETURNING id, name, email, role, created_at, updated_at`,
-      [name, email.toLowerCase(), hashedPassword],
+      [name, email.toLowerCase().trim(), hashedPassword],
     );
 
     const newUser = result.rows[0];
@@ -59,7 +51,12 @@ export const register = async (
       token,
       user: newUser,
     });
-  } catch (error: unknown) {
+  } catch (error: unknown) {// PostgreSQL unique_violation error code is '23505'
+if (error instanceof DatabaseError && error.code === "23505") {
+        res.status(409).json({ error: "A user with this email already exists." });
+      return;
+    }
+
     if (error instanceof Error) {
       res.status(500).json({ error: error.message });
     } else {
@@ -80,11 +77,11 @@ export const login = async (
   }
 
   try {
+    const tDbStart = performance.now();
     const result = await query<User>(
       "SELECT id, name, email, password, role, created_at, updated_at FROM users WHERE email = $1",
       [email.toLowerCase()],
     );
-
     const user = result.rows[0];
     if (!user || !user.password) {
       res.status(401).json({ error: "Invalid email or password." });
@@ -107,6 +104,7 @@ export const login = async (
       created_at: user.created_at,
       updated_at: user.updated_at,
     };
+
 
     res.status(200).json({
       message: "Login successful.",
