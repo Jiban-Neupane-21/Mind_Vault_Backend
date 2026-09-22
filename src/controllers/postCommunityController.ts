@@ -4,7 +4,6 @@ import {pool} from '../config/db'; // Adjust path to your db pool file
 import { validatePostInput } from '@/validators/communityValidator';
 import { CreatePostDTO, PostType, ValidationResult } from '../types/community';
 import { TokenPayload } from '@/utils/token'; // Adjust path to your token.ts
-import { UserRole } from '@/types/user'; // Adjust path to your user types
 
 interface AuthenticatedRequest extends Request {
   user?: TokenPayload;
