@@ -1,8 +1,8 @@
 // src/controllers/postController.ts
 import { Request, Response } from 'express';
-import {pool} from '../config/db'; // Adjust path to your db pool file
+import {pool} from '@/config/db'; // Adjust path to your db pool file
 import { validatePostInput } from '@/validators/communityValidator';
-import { CreatePostDTO, PostType, ValidationResult } from '../types/community';
+import { CreatePostDTO, PostType, ValidationResult } from '@/types/community';
 import { TokenPayload } from '@/utils/token'; // Adjust path to your token.ts
 
 interface AuthenticatedRequest extends Request {
