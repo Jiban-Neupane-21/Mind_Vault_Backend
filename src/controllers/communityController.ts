@@ -4,7 +4,7 @@ import {pool} from '@/config/db';
 import {
   slugify,
   validateCommunityInput,
-} from '../validators/communityValidator';
+} from '@/validators/communityValidator';
 import {   CreateCommunityDTO,CreatePostDTO, PostType, ValidationResult, UpdateCommunityDTO } from '@/types/community';
 import { TokenPayload } from '@/utils/token';
 
