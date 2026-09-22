@@ -47,6 +47,10 @@ const options: swaggerJSDoc.Options = {
         name: "Quotes",
         description: "Anonymous and curated quotes management",
       },
+      {
+        name: "Communities",
+        description: "Community creation, membership, and post management",
+      },
     ],
     components: {
       securitySchemes: {
@@ -58,7 +62,8 @@ const options: swaggerJSDoc.Options = {
       },
     },
   },
-  apis: ["./src/routes/*.ts", "./dist/routes/*.js"],
-};
+apis: isProduction
+  ? ["./dist/routes/*.js"]
+  : ["./src/routes/*.ts"]};
 
 export const swaggerSpec = swaggerJSDoc(options);

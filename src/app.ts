@@ -15,6 +15,7 @@ import { trackVisitor } from "@/middleware/trackVisitor";
 import { generalLimiter } from "@/middleware/rateLimitMiddleware";
 import { errorHandler } from "@/middleware/errorMiddleware";
 import { AppError } from "@/utils/AppError";
+import communityRoutes from '@/routes/communityRoutes';
 
 dotenv.config();
 
@@ -109,6 +110,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/thoughts", thoughtRoutes);
 app.use("/api/sites", siteRoutes);
 app.use("/api/quotes", quoteRoutes);
+app.use('/api/communities', communityRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use((req, _res, next) => {
